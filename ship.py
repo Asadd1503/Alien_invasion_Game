@@ -3,14 +3,17 @@ class SHIP:
     def __init__(self, ai_game):
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
-
+        self.settings = ai_game.settings
+        #X-coordinnate
+        self.x = 600.0
         #loadig ship_image
         self.image = pygame.image.load('ship/myship.bmp')
         self._resize_image()
         #Making ship image a rectangle to make it esier to place using x y coordinates
         self.ship_rect = self.image.get_rect()
-
-
+        #flag for right movement and left movement
+        self.move_right = False
+        self.move_left = False
         #assignning ship image rectangle to screen which i made in Alien Invasion class for gameplay
         self.ship_rect.midbottom = self.screen_rect.midbottom
 
@@ -21,6 +24,19 @@ class SHIP:
         new_height = original_height//20
         # Resize the image
         self.image = pygame.transform.scale(self.image, (new_width, new_height))
+
+    def update_ship(self):
+        """Increasing and decreasing ship_rect X cordinate to move left or right"""
+        
+        if self.move_right and self.ship_rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        if self.move_left and self.ship_rect.left > self.screen_rect.left:
+            self.x -= self.settings.ship_speed 
+
+        self.ship_rect.x = self.x
+
+        
+        
 
 
 
