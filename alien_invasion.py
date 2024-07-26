@@ -2,6 +2,7 @@ import sys
 import pygame
 from settings import SETTING
 from ship import SHIP
+from bullet import BULLET
 
 class AlienInvasion:
     """Main class to manage behavior of game"""
@@ -11,6 +12,7 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode((self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption(self.settings.game_title)
         self.ship = SHIP(self)
+        self.bullets = pygame.sprite.Group()
         
 
     def run_game(self):
@@ -19,16 +21,33 @@ class AlienInvasion:
         while True:
             self._check_event()
             self.ship.update_ship()
+            self._update_bullets()
             self._update_screen()
+
+    def _update_bullets(self):
+        #update every bullet instance which has been created by pressing space
+        self.bullets.update()
+
+        #checks and delete every bullet in bullets group attribute if it passes above the display screen rect    
+        for bullet in self.bullets.copy():
+            if bullet.bullet_rect.bottom <= self.ship.screen_rect.top:
+                self.bullets.remove(bullet)
+            #print(len(self.bullets))     
             
-            
-            
+    def _shoot_bullets(self):
+        if self.settings.bullets_fired_once > len(self.bullets):
+            #on every tab of space making new bullet
+            new_bullet = BULLET(self)
+            #adding it to group bullets
+            self.bullets.add(new_bullet)        
 
     def _update_screen(self):
         """commands to update screen like draw ship, color background, update screen to new etc."""
         self.screen.fill(self.settings.bg_color)   
         self.ship.blitme()
-        
+        #drawing bullet rectangle for every bullet object in bullets group
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
      
         pygame.display.flip()
          
@@ -70,6 +89,12 @@ class AlienInvasion:
         # Is is q for quit
         elif event.key == pygame.K_q:
             sys.exit(0)
+        #Is it space
+        elif event.key == pygame.K_SPACE:
+            self._shoot_bullets()
+
+    
+
                     
             
         

@@ -5,17 +5,21 @@ class SHIP:
         self.screen_rect = self.screen.get_rect()
         self.settings = ai_game.settings
         #X-coordinnate
-        self.x = 600.0
+        
         #loadig ship_image
-        self.image = pygame.image.load('ship/myship.bmp')
+        self.image = pygame.image.load('ship/rocket.bmp')
         self._resize_image()
         #Making ship image a rectangle to make it esier to place using x y coordinates
         self.ship_rect = self.image.get_rect()
+        
+        
         #flag for right movement and left movement
         self.move_right = False
         self.move_left = False
         #assignning ship image rectangle to screen which i made in Alien Invasion class for gameplay
         self.ship_rect.midbottom = self.screen_rect.midbottom
+        #Assigning ship rect mid bottom's x corordinate which it has taken from screen rect midbottom
+        self.x = float(self.ship_rect.x)
 
     def _resize_image(self):
         """resize the image of ship which is quite large"""
@@ -36,11 +40,6 @@ class SHIP:
         self.ship_rect.x = self.x
 
         
-        
-
-
-
-
     def blitme(self):
         """draw the ship at its current location"""
         self.screen.blit(self.image, self.ship_rect)
