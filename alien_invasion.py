@@ -3,6 +3,7 @@ import pygame
 from settings import SETTING
 from ship import SHIP
 from bullet import BULLET
+from alien import ALIEN
 
 class AlienInvasion:
     """Main class to manage behavior of game"""
@@ -13,7 +14,37 @@ class AlienInvasion:
         pygame.display.set_caption(self.settings.game_title)
         self.ship = SHIP(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
         
+        self._create_alien_fleet()
+
+    def _create_alien_fleet(self):
+        alien = ALIEN(self)
+        alien_width, alien_height = alien.rect.size
+        #Calculating space for placing aliens in a row excluding left and right margins
+        available_space_x = self.settings.screen_width - (2*alien_width)
+        number_aliens_x = available_space_x//(2*alien_width)
+        #Calculating available space excluding ship and 2 times alien height for firing field
+        ship_height = self.ship.ship_rect.height
+        available_space_y = self.settings.screen_height - ship_height - (2*alien_height)
+        number_of_rows = available_space_y//(2*alien_height)
+        #Creating first row of aliens
+        for row_number in range(number_of_rows):
+            for alien_number in range(number_aliens_x):
+                self._create_alien(row_number, alien_number)
+                               
+    def _create_alien(self, row_number ,alien_number):
+        new_alien = ALIEN(self)
+        new_alien_width, new_alien_height = new_alien.rect.size
+        new_alien.x = new_alien_width + 2 * new_alien_width * alien_number
+        new_alien.rect.x = new_alien.x
+
+        new_alien.y = new_alien_height + 2 * new_alien_height * row_number
+        new_alien.rect.y = new_alien.y
+        #Also upadting x and y coordinates of every alien instance before adding in group
+        #Adding alien instance to goup name aliens so one function can be perform on all of them at a time
+        self.aliens.add(new_alien)
+
 
     def run_game(self):
         """main loop for gameplay"""
@@ -48,6 +79,7 @@ class AlienInvasion:
         #drawing bullet rectangle for every bullet object in bullets group
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        self.aliens.draw(self.screen)
      
         pygame.display.flip()
          

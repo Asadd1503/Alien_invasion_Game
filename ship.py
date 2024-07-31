@@ -7,7 +7,7 @@ class SHIP:
         #X-coordinnate
         
         #loadig ship_image
-        self.image = pygame.image.load('ship/rocket.bmp')
+        self.image = pygame.image.load('ship/myship.bmp')
         self._resize_image()
         #Making ship image a rectangle to make it esier to place using x y coordinates
         self.ship_rect = self.image.get_rect()
