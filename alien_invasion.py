@@ -19,6 +19,7 @@ class AlienInvasion:
         self._create_alien_fleet()
 
     def _create_alien_fleet(self):
+        """Calculating space available for aliens and then placing them """
         alien = ALIEN(self)
         alien_width, alien_height = alien.rect.size
         #Calculating space for placing aliens in a row excluding left and right margins
@@ -53,7 +54,27 @@ class AlienInvasion:
             self._check_event()
             self.ship.update_ship()
             self._update_bullets()
+            self._update_aliens()
             self._update_screen()
+
+    def _update_aliens(self):
+        """calls _check_fleet_edge_and_drop() method and then calls update on each alien instance to make it move"""
+        
+        self._check_fleet_edge_and_drop()
+        self.aliens.update()
+        
+
+    def _check_fleet_edge_and_drop(self):
+        """For each alien instance in group checks wether they have reached either edge of screen or not,"""
+        """ if yes then drop them and add in their x coordinate in opposite direction """
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                for each_alien in self.aliens.sprites():
+                    each_alien.rect.y += self.settings.drop
+                self.settings.aliens_direction *= -1
+                break
+            else:
+                continue
 
     def _update_bullets(self):
         #update every bullet instance which has been created by pressing space

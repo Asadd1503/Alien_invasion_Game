@@ -13,5 +13,8 @@ class SETTING:
         self.bullet_height = 10
         self.bullet_color = (60, 60, 60)
         self.bullets_fired_once = 3
-        
+        #Aliens settings
+        self.alien_speed = 0.3
+        self.aliens_direction = 1
+        self.drop = 8
         
