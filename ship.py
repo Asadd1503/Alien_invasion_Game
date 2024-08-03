@@ -7,19 +7,19 @@ class SHIP:
         #X-coordinnate
         
         #loadig ship_image
-        self.image = pygame.image.load('ship/myship.bmp')
+        self.image = pygame.image.load('ship/rocket.bmp')
         self._resize_image()
         #Making ship image a rectangle to make it esier to place using x y coordinates
-        self.ship_rect = self.image.get_rect()
+        self.rect = self.image.get_rect()
         
         
         #flag for right movement and left movement
         self.move_right = False
         self.move_left = False
         #assignning ship image rectangle to screen which i made in Alien Invasion class for gameplay
-        self.ship_rect.midbottom = self.screen_rect.midbottom
+        self.rect.midbottom = self.screen_rect.midbottom
         #Assigning ship rect mid bottom's x corordinate which it has taken from screen rect midbottom
-        self.x = float(self.ship_rect.x)
+        self.x = float(self.rect.x)
 
     def _resize_image(self):
         """resize the image of ship which is quite large"""
@@ -30,17 +30,22 @@ class SHIP:
         self.image = pygame.transform.scale(self.image, (new_width, new_height))
 
     def update_ship(self):
-        """Increasing and decreasing ship_rect X cordinate to move left or right"""
+        """Increasing and decreasing rect X cordinate to move left or right"""
         
-        if self.move_right and self.ship_rect.right < self.screen_rect.right:
+        if self.move_right and self.rect.right < self.screen_rect.right:
             self.x += self.settings.ship_speed
-        if self.move_left and self.ship_rect.left > self.screen_rect.left:
+        if self.move_left and self.rect.left > self.screen_rect.left:
             self.x -= self.settings.ship_speed 
 
-        self.ship_rect.x = self.x
+        self.rect.x = self.x
 
         
     def blitme(self):
         """draw the ship at its current location"""
-        self.screen.blit(self.image, self.ship_rect)
+        self.screen.blit(self.image, self.rect)
+
+    def recenter_ship(self):
+        """Calling from _ship_hit for recentering ship after it has been hit by alien"""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
 
