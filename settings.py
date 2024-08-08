@@ -17,7 +17,12 @@ class SETTING:
         #Aliens settings
         self.alien_speed = 0.3
         self.aliens_direction = 1
-        self.drop = 25
+        self.drop = 80
         #Game stats
         self.ships_limit = 3
+        #Button settings
+        self.button_width = 450
+        self.button_height = 60
+        self.txt_clr = (255, 255, 255)
+        self.button_rect_clr = (0, 255, 0)
         

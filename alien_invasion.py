@@ -6,6 +6,7 @@ from ship import SHIP
 from bullet import BULLET
 from alien import ALIEN
 from game_stats import GAMESTATS
+from button import BUTTON
 
 class AlienInvasion:
     """Main class to manage behavior of game"""
@@ -19,6 +20,7 @@ class AlienInvasion:
         self.ship = SHIP(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.button = BUTTON(self, "play")
         
         self._create_alien_fleet()
 
@@ -73,6 +75,7 @@ class AlienInvasion:
         #Checking if aliens have reached bottom of screen or not
         self._check_alien_at_bottom()
 
+
     def _check_alien_at_bottom(self):
         """Calling from update_aliens after ship_hit , checking wether aliens have reached bottom of screen or not"""
         """if yes then performing respective tasks"""
@@ -102,11 +105,17 @@ class AlienInvasion:
         
         else:
             self.game_stats.game_active = False
+            self.game_stats.second_time = True
+            #setting mouse cursor visible again
+            pygame.mouse.set_visible(True)
             #sleep(self.settings.sleep_time)
             #print("GAME OVER :-(")
             #pygame.quit()
             #sys.exit(0)
-        
+
+    def _draw_new_msg(self):
+        button2 = BUTTON(self, "play again or press q to quit")
+        button2.draw_button()
 
     def _check_fleet_edge_and_drop(self):
         """For each alien instance in group checks wether they have reached either edge of screen or not,"""
@@ -161,6 +170,11 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
+        if not self.game_stats.game_active:
+            if self.game_stats.second_time:
+                self._draw_new_msg()
+            else:
+                self.button.draw_button()
      
         pygame.display.flip()
          
@@ -175,6 +189,21 @@ class AlienInvasion:
                 self._check_keydown(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_at_play_button(mouse_pos)
+
+    def _check_at_play_button(self, mouse_pos):
+        """at click on play button starting new game"""
+        if self.button.rect.collidepoint(mouse_pos):
+            #Setting mouse cursor invisible on pyagme screen
+            pygame.mouse.set_visible(False)
+            self.game_stats.reset_stats()
+            self.game_stats.game_active = True
+            self.aliens.empty()
+            self.bullets.empty()
+            self._create_alien_fleet()
+            self.ship.recenter_ship()
     
     def _check_keyup(self, event):
         """checking for key release"""
