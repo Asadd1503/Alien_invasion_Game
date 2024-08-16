@@ -9,6 +9,7 @@ class BUTTON:
         #initializing rect and adjusting it at the center of screen
         self.rect = pygame.Rect(0 ,0, self.settings.button_width, self.settings.button_height)
         self.rect.center = self.screen_rect.center
+        self.rect_y = float(self.rect.y)
         
         self._prep_msg(msg)
 
@@ -17,11 +18,19 @@ class BUTTON:
         self.msg_image = self.font.render(msg, True, self.settings.txt_clr)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
+        self.msg_y = float(self.msg_image_rect.y)
 
     def draw_button(self):
         """first drawing button rect and then msg image in it"""
         self.screen.fill(self.settings.button_rect_clr, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
+
+    def move_button_up(self):
+        self.rect_y -= 0.25
+        self.rect.y = self.rect_y
+        self.msg_y -= 0.25
+        self.msg_image_rect.y = self.msg_y
+
 
 
 

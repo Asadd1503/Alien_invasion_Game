@@ -5,7 +5,7 @@ class GAMESTATS:
         self.reset_stats()
         #starting game inn inactive state
         self.game_active = False
-        self.second_time = False
+        self.game_over = False
 
 
     def reset_stats(self):

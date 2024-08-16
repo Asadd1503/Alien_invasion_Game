@@ -7,7 +7,7 @@ class SHIP:
         #X-coordinnate
         
         #loadig ship_image
-        self.image = pygame.image.load('ship/rocket.bmp')
+        self.image = pygame.image.load('ship/myship.bmp')
         self._resize_image()
         #Making ship image a rectangle to make it esier to place using x y coordinates
         self.rect = self.image.get_rect()
@@ -20,6 +20,7 @@ class SHIP:
         self.rect.midbottom = self.screen_rect.midbottom
         #Assigning ship rect mid bottom's x corordinate which it has taken from screen rect midbottom
         self.x = float(self.rect.x)
+        self.rect.y -= (self.rect.height//10)
 
     def _resize_image(self):
         """resize the image of ship which is quite large"""
@@ -48,4 +49,5 @@ class SHIP:
         """Calling from _ship_hit for recentering ship after it has been hit by alien"""
         self.rect.midbottom = self.screen_rect.midbottom
         self.x = float(self.rect.x)
+        self.rect.y -= (self.rect.height//10)
 

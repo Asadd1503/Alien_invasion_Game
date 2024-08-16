@@ -7,22 +7,35 @@ class SETTING:
         self.bg_color = (240, 240, 240)
         self.game_title = "ALIEN INVASION :-)"
         #Ship settings
-        self.ship_speed = 1.5
+        
         #Bullet Settings
-        self.bullet_speed = 1
+        
         self.bullet_width = 3 #3
         self.bullet_height = 10 #10
         self.bullet_color = (60, 60, 60)
         self.bullets_fired_once = 3
         #Aliens settings
-        self.alien_speed = 0.3
+        
         self.aliens_direction = 1
-        self.drop = 80
+        self.drop = 25
         #Game stats
         self.ships_limit = 3
         #Button settings
-        self.button_width = 450
+        self.button_width = 300
         self.button_height = 60
-        self.txt_clr = (255, 255, 255)
+        self.txt_clr = (30, 30, 30)
         self.button_rect_clr = (0, 255, 0)
+        # Game pace speed contol
+        self.speedup_scale = 1.1
+        #All the settings which will change throughout the game are declared in this method so that 
+        #They can be reinitialized on the start of new game
+        self.initialize_dynamic_settings()
+
+
+    def initialize_dynamic_settings(self):
+        self.bullet_speed = 1.5
+        self.ship_speed = 0.75
+        self.alien_speed = 0.25
+        self.aliens_direction = 1
+
         
