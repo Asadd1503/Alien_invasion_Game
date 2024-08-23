@@ -8,6 +8,7 @@ from alien import ALIEN
 from game_stats import GAMESTATS
 from button import BUTTON
 from blast import BLAST
+from scoreboard import SCOREBOARD
 
 class AlienInvasion:
     """Main class to manage behavior of game"""
@@ -18,11 +19,12 @@ class AlienInvasion:
         self.screen_rect = self.screen.get_rect()
         pygame.display.set_caption(self.settings.game_title)
         self.game_stats = GAMESTATS(self)
+        self.score_board = SCOREBOARD(self)
         self.ship = SHIP(self)
         self.blast = BLAST(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
-        self.button = BUTTON(self, "Press P to play")
+        self.button = BUTTON(self, "Press S to Start")
         self.game_over_button = BUTTON(self, "GAME OVER")
         self._set_coordinates_game_over_button()
 
@@ -70,18 +72,19 @@ class AlienInvasion:
         
         while True:
             self._check_event()
-            if self.game_stats.game_active and not self.game_stats.game_over:
+            if self.game_stats.game_active and not self.game_stats.game_over and not self.game_stats.game_pause:
                 self.ship.update_ship()
                 self._update_bullets()
                 self._update_aliens()
             
-            """commands to update screen like draw ship, color background, update screen to new etc."""
+            """ALL the commands to update screen like draw ship, color background, update screen to new etc."""
             self.screen.fill(self.settings.bg_color)   
             self.ship.blitme()
             #drawing bullet rectangle for every bullet object in bullets group
             for bullet in self.bullets.sprites():
                 bullet.draw_bullet()
             self.aliens.draw(self.screen)
+            self.score_board.show_score()
             if not self.game_stats.game_active:
                 self.button.draw_button()
             if self.game_stats.game_over:
@@ -121,12 +124,11 @@ class AlienInvasion:
         """Calling from update aliens, and doing tasks required after ship has been hit"""
         #decreasing ship limit in game stats
         self.game_stats.ships_left -= 1
+        self.score_board.prep_ship()
         if self.game_stats.ships_left > 0:
-            
             #removing reamining bullets and aliens on screen
             self.bullets.empty()
             self.aliens.empty()
-
             self._create_alien_fleet()
             #recentering ship
             self.ship.recenter_ship()
@@ -137,9 +139,8 @@ class AlienInvasion:
             self.game_stats.game_over = True
             self.run_game()
             self.game_stats.game_active = False
-            
-            #setting mouse cursor visible again
             pygame.mouse.set_visible(True)
+            #setting mouse cursor visible again
             #sleep(self.settings.sleep_time)
             #print("GAME OVER :-(")
             #pygame.quit()
@@ -176,44 +177,58 @@ class AlienInvasion:
         """if colision happens."""
         collisions = pygame.sprite.groupcollide(self.bullets, self.aliens, True, True)
         if collisions:
-            
-            for alien_list_shot in collisions.values():
-                for alien in alien_list_shot:
-                    self.blast.rect.center = alien.rect.center
+            # If collisions dictionary exists do following tasks
+            self._prepapre_and_display_blast(collisions)
+        self._next_level()    
+        
+    def _prepapre_and_display_blast(self, collisions):
+        # for the list of aliens hit by a bullet show blast image on their places
+        for alien_list_shot in collisions.values():
+            for alien in alien_list_shot:
+                self.blast.rect.center = alien.rect.center
+                #Delaying in while loop for displaying blast image and let every other image as it is
+                for i in range(1, 10):
+                    self._check_event()
+                    self.ship.update_ship()
+                    self.aliens.update()
+                    self.bullets.update()
+                    self.screen.fill(self.settings.bg_color)
+                    self.ship.blitme()
+                    for bullet in self.bullets.sprites():
+                        bullet.draw_bullet()
+                    self.blast.blitme()
+                    self.aliens.draw(self.screen)
                     
-                    for i in range(1, 15):
-                        self._check_event()
-                        self.ship.update_ship()
-                        self.aliens.update()
-                        self.screen.fill(self.settings.bg_color)
-                        self.ship.blitme()
-                        self.blast.blitme()
-                        self.aliens.draw(self.screen)
-                        
-                        pygame.display.flip()
-                        
-        collisions.clear()
+                    pygame.display.flip()
 
-
+    def _next_level(self):
         # If all the aliens have been shot dead then speed up the game and recreate alien fleet
         if not self.aliens:
             self.bullets.empty()
             self._create_alien_fleet()
-            self._increase_game_pace()
+            self.settings.increase_game_pace()
+            #Also increase level
+            self.game_stats.level += 1
+            self.game_stats.super_bullet = 1
+            self.score_board.prep_level()
+            self.score_board.check_high_level()
 
-    def _increase_game_pace(self):
-        """After all the aliens have shot down this method increases the game pace by a specified amount in setting class"""
-        self.settings.alien_speed *= self.settings.speedup_scale
-        self.settings.ship_speed *= self.settings.speedup_scale
-        self.settings.bullet_speed *= self.settings.speedup_scale
 
-
-        
-
-          
-            
     def _shoot_bullets(self):
         if self.settings.bullets_fired_once > len(self.bullets):
+            #giving large bullet perk on reaching every level mutiple of 3
+            if (self.game_stats.level % 3) == 0:
+                if self.game_stats.super_bullet <= 3:
+                    self.settings.bullet_width = 500
+                    self.settings.bullet_height = 3
+                    self.game_stats.super_bullet += 1
+                else:
+                    self.settings.bullet_width = 3
+                    self.settings.bullet_height = 10
+            else:
+                self.settings.bullet_width = 3
+                self.settings.bullet_height = 10
+
             #on every tab of space making new bullet
             new_bullet = BULLET(self)
             #adding it to group bullets
@@ -228,13 +243,13 @@ class AlienInvasion:
         for event in pygame.event.get():
             #checking for any mouse or keyboard input
             if event.type == pygame.QUIT:
+                with open('highest_level.txt', 'w') as f:
+                    f.write(str(self.game_stats.high_level))
                 sys.exit(0)
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup(event)
-            
-    
             
     
     def _check_keyup(self, event):
@@ -246,8 +261,6 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.move_left = False
 
-
-
     def _check_keydown(self, event):
         """checking for key press"""
         #is it right keyH
@@ -258,29 +271,35 @@ class AlienInvasion:
             self.ship.move_left = True
         # Is is q for quit
         elif event.key == pygame.K_q:
+            with open('highest_level.txt', 'w') as f:
+                f.write(str(self.game_stats.high_level))
             sys.exit(0)
         #Is it space
         elif event.key == pygame.K_SPACE:
             self._shoot_bullets()
-        #Is it r for resetting game
-        elif event.key == pygame.K_p:
+        
+        elif event.key == pygame.K_s:
             self._start_new_game()
+        #Pausing game on p press
+        elif event.key == pygame.K_p:
+            self.game_stats.game_pause = True
+        #Resuming game on r press
+        elif event.key == pygame.K_r:
+            self.game_stats.game_pause = False
 
     def _start_new_game(self):
         pygame.mouse.set_visible(False)
         self.game_stats.reset_stats()
+        self.score_board.prep_ship()
         self.game_stats.game_active = True
         self.aliens.empty()
         self.bullets.empty()
         self._create_alien_fleet()
         self.ship.recenter_ship()
         self.settings.initialize_dynamic_settings()
+        self.score_board.prep_level()
 
     
-
-                    
-            
-        
 
 if __name__ == '__main__':
     ai = AlienInvasion()
